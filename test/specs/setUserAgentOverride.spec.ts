@@ -78,18 +78,23 @@ describe("setUserAgentOverride", () => {
     }).catch((error) => done(error));
   });
 
-  const asyncWrapper = async () => {
+  const asyncWrapper = async (userAgent: string) => {
     const overrideRequest: CDP.Emulation.SetUserAgentOverrideRequest = {
-      userAgent: "test user agent async wrapper"
+      userAgent
     };
     await browser.cdp("Emulation", "setUserAgentOverride", overrideRequest);
     const version: CDP.Browser.GetVersionResponse = await browser.cdp("Browser", "getVersion");
     expect(version, "version").to.not.equal(undefined);
     expect(version.userAgent, "version.userAgent").to.equal(overrideRequest.userAgent);
   };
-
+  
   it("Network.setUserAgentOverride should work with async wrapper", (done: Mocha.Done) => {
     // The top level is not async so this works even though everything downstream is async
-    asyncWrapper().then(() => done()).catch((error) => done(error));
+    asyncWrapper("test user agent async wrapper").then(() => done()).catch((error) => done(error));
+  });
+  
+  it("Network.setUserAgentOverride should work with async wrapper await", async () => {
+    // The top level is not async so this works even though everything downstream is async
+    await asyncWrapper("test user agent async wrapper await");
   });
 });
